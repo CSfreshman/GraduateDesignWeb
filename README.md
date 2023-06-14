@@ -1,4 +1,5 @@
-# test1
+# GraduateDesignWeb
+数据库课程设计：毕业设计管理系统前端界面
 
 ## Project setup
 ```
