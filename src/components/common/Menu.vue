@@ -9,6 +9,9 @@
           text-color="#F2F6FC"
           active-text-color="#606266"
           >
+        <el-menu-item index="/home">
+          <span>个人信息</span>
+        </el-menu-item>
 <!--        通过遍历来动态的添加侧边栏界面-->
         <template v-for="(item, index) in menus">
           <el-submenu :index="index + ''" :key='index' v-if="!item.hidden">

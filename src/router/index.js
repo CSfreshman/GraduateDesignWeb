@@ -53,6 +53,7 @@ const routes = [
   {
     path: '/home',
     name: '个人信息',
+    hidden: true,
     component: () => import('@/components/page/info')
   },
   {
