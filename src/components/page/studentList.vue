@@ -29,10 +29,10 @@
         <!--        专业班级-->
         <el-form-item label="专业" :label-width="formLabelWidth">
           <el-select v-model="student.major" placeholder="请选择专业">
-            <el-option value="100001">计算机科学与技术</el-option>
-            <el-option value="100002">软件工程</el-option>
-            <el-option value="100003">电子信息科学与技术</el-option>
-            <el-option value="100004">物联网工程</el-option>
+            <el-option value="100001" label="计算机科学与技术"></el-option>
+            <el-option value="100002" label="软件工程"></el-option>
+            <el-option value="100003" label="电子信息科学与技术"></el-option>
+            <el-option value="100004" label="物联网工程"></el-option>
           </el-select>
         </el-form-item>
 
@@ -145,6 +145,7 @@ export default {
     //编辑学生信息
     edit(row){
       this.student = row
+      this.student.major = row.majorName
       this.isAdd=false
       console.log(this.isAdd)
       this.dialogFormVisible=true;
