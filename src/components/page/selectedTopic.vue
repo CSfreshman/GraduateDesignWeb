@@ -17,7 +17,6 @@
         <div class="cont">
           <div class="options">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="findResult">查询</el-button>
-            <el-button type="primary" icon="el-icon-edit" size="mini" @click="addResult">添加</el-button>
             <el-button type="primary" size="mini" @click="upload">上传<i class="el-icon-upload el-icon--right"></i></el-button>
             <el-button type="primary" icon="el-icon-thumb" size="mini" @click="flush">刷新</el-button>
           </div>
@@ -36,49 +35,31 @@
               <div slot="tip" class="el-upload__tip">可上传txt文件</div>
             </el-upload>
           </el-dialog>
-          <!--    嵌套表单的对话框-->
-          <el-dialog :title="isAdd ? '新增成绩信息' : isFind ? '查询成绩信息' : '编辑成绩信息' " :visible.sync="dialogFormVisible">
-            <span class = "span" v-if="!(isAdd || isFind)">该操作只需要修改成绩</span>
+
+<!--          查询选题信息-->
+          <el-dialog :title="'查询选题信息'" :visible.sync="dialogFormVisible">
             <el-form :model="formResult">
               <!--        学号-->
               <el-form-item label="学号" :label-width="formLabelWidth">
-                <el-input v-model="formResult.sid" autocomplete="off"></el-input>
+                <el-input v-model="formResult.stuNo" autocomplete="off"></el-input>
               </el-form-item>
-              <!--        姓名-->
-              <el-form-item label="姓名" :label-width="formLabelWidth">
-                <el-input v-model="formResult.name" autocomplete="off"></el-input>
+              <!--        老师工号-->
+              <el-form-item label="工号" :label-width="formLabelWidth">
+                <el-input v-model="formResult.teacherNo" autocomplete="off"></el-input>
               </el-form-item>
-              <!--        课程名-->
-              <el-form-item label="课程名" :label-width="formLabelWidth">
-                <el-input v-model="formResult.courseName" autocomplete="off"></el-input>
+              <!--        题目编号-->
+              <el-form-item label="题目编号" :label-width="formLabelWidth">
+                <el-input v-model="formResult.topicId" autocomplete="off"></el-input>
               </el-form-item>
-              <!--        得分-->
-              <el-form-item label="成绩" :label-width="formLabelWidth" v-if="!isFind">
-                <el-input v-model="formResult.score" autocomplete="off"></el-input>
-              </el-form-item>
-              <!--        专业班级-->
-              <el-form-item label="专业" :label-width="formLabelWidth" v-if="isFind">
-                <el-select v-model="formResult.major" placeholder="请选择专业">
-                  <el-option value="计算机"></el-option>
-                  <el-option value="物联网"></el-option>
-                  <el-option value="电信科"></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="年级" :label-width="formLabelWidth" v-if="isFind">
-                <el-select v-model="formResult.grade" placeholder="请选择年级">
-                  <el-option value="19"></el-option>
-                  <el-option value="20"></el-option>
-                  <el-option value="21"></el-option>
-                  <el-option value="22"></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="班级" :label-width="formLabelWidth" v-if="isFind">
-                <el-select v-model="formResult.classNum" placeholder="请选择班级">
-                  <el-option value="1"></el-option>
-                  <el-option value="2"></el-option>
-                  <el-option value="3"></el-option>
-                  <el-option value="4"></el-option>
-                  <el-option value="5"></el-option>
+              <el-form-item label="选题类型" :label-width="formLabelWidth">
+                <el-select v-model="formResult.topicType" placeholder="请选择">
+                  <el-option
+                      v-for="item in topicTypeList"
+                      :key="item.key"
+                      :label="item.value"
+                      :value="item.key"
+                  >
+                  </el-option>
                 </el-select>
               </el-form-item>
             </el-form>
@@ -87,18 +68,21 @@
               <el-button type="primary" @click="confirm">确 定</el-button>
             </div>
           </el-dialog>
+
+
+
           <div>
             <!--    主体表格部分-->
             <el-table :data="tableData.slice((currentPage -1) * pageSize, currentPage*pageSize)" style="width: 100%">
-              <el-table-column prop="id" label="成绩编号" width="0" v-if="showResultId"></el-table-column>
-              <el-table-column prop="sid" label="学号" width="100"></el-table-column>
-              <el-table-column prop="name" label="姓名" width="100"></el-table-column>
-              <el-table-column prop="score" label="成绩" width="100"></el-table-column>
-              <el-table-column prop="courseName" label="课程" width="100"></el-table-column>
+              <el-table-column prop="id" label="编号" width="100" v-if="showSelectedTopicId" ></el-table-column>
+              <el-table-column prop="stuNo" label="学号" width="100"></el-table-column>
+              <el-table-column prop="stuName" label="姓名" width="100"></el-table-column>
               <el-table-column prop="major" label="专业" width="100"></el-table-column>
-              <el-table-column prop="grade" label="年级" width="100"></el-table-column>
-              <el-table-column prop="classNum" label="班级" width="100"></el-table-column>
-              <el-table-column fixed="right" label="操作" width="200">
+              <el-table-column prop="teacherNo" label="指导老师工号" width="120"></el-table-column>
+              <el-table-column prop="teacherName" label="指导老师姓名" width="120"></el-table-column>
+              <el-table-column prop="topicId" label="题目编号" width="100"></el-table-column>
+              <el-table-column prop="topicName" label="题目名称" width="100"></el-table-column>
+              <el-table-column fixed="topicTypeName" label="操作" width="200">
                 <template slot-scope="scope">
                   <el-button type="primary" icon="el-icon-edit" size="mini" @click="editResult(scope.row)">编辑</el-button>
                   <el-button type="danger" icon="el-icon-delete" size="mini" @click="delResult(scope.row)">删除</el-button>
@@ -138,33 +122,18 @@ export default {
   data() {
     return {
       isUpload: false,
-      showResultId: false,
+      showSelectedTopicId: true,
       isAdd: true,
       isFind: true,
       formLabelWidth: '100px',
-      tableData: [
-        //     {
-        //   id: '1',
-        //   cid: '1',
-        //   sid: '2020218000',
-        //   name: '吴子文',
-        //   score: '99',
-        //   course: '组合数学',
-        //   major: '计算机',
-        //   grade: '20',
-        //   classNum: '3'
-        // }
-      ],
+      tableData: [],
+      topicTypeList: [],
       formResult: {
         id: '',
-        cid: '',
-        sid: '',
-        name: '',
-        score: '',
-        courseName: '',
-        major: '',
-        grade: '',
-        classNum: ''
+        stuNo: '',
+        teacherNo: '',
+        topicId: '',
+        topicType: ''
       },
       dialogFormVisible: false,
       //  分页数据
@@ -218,16 +187,12 @@ export default {
     addResult(){
       this.formResult = {}
       this.dialogFormVisible = true
-      this.isAdd = true
-      this.isFind = false
 
     },
     //查询成绩信息
     findResult(){
       this.formResult = {}
       this.dialogFormVisible = true
-      this.isAdd = false
-      this.isFind = true
 
     },
     //对话框的确认按钮
