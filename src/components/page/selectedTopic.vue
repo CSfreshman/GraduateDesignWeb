@@ -52,9 +52,20 @@
                 <el-input v-model="formResult.topicId" autocomplete="off"></el-input>
               </el-form-item>
               <el-form-item label="选题类型" :label-width="formLabelWidth">
-                <el-select v-model="formResult.topicType" placeholder="请选择">
+                <el-select v-model="formResult.topicId" placeholder="请选择">
                   <el-option
                       v-for="item in topicTypeList"
+                      :key="item.key"
+                      :label="item.value"
+                      :value="item.key"
+                  >
+                  </el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="课题进度" :label-width="formLabelWidth">
+                <el-select v-model="formResult.progress" placeholder="请选择">
+                  <el-option
+                      v-for="item in topicProgress"
                       :key="item.key"
                       :label="item.value"
                       :value="item.key"
@@ -75,13 +86,14 @@
             <!--    主体表格部分-->
             <el-table :data="tableData.slice((currentPage -1) * pageSize, currentPage*pageSize)" style="width: 100%">
               <el-table-column prop="id" label="编号" width="100" v-if="showSelectedTopicId" ></el-table-column>
-              <el-table-column prop="stuNo" label="学号" width="100"></el-table-column>
-              <el-table-column prop="stuName" label="姓名" width="100"></el-table-column>
-              <el-table-column prop="major" label="专业" width="100"></el-table-column>
-              <el-table-column prop="teacherNo" label="指导老师工号" width="120"></el-table-column>
-              <el-table-column prop="teacherName" label="指导老师姓名" width="120"></el-table-column>
+              <el-table-column prop="studentVo.stuNo" label="学号" width="100"></el-table-column>
+              <el-table-column prop="studentVo.stuName" label="姓名" width="100"></el-table-column>
+              <el-table-column prop="studentVo.majorName" label="专业" width="100"></el-table-column>
+              <el-table-column prop="teacherVo.teacherNo" label="指导老师工号" width="120"></el-table-column>
+              <el-table-column prop="teacherVo.teacherName" label="指导老师姓名" width="120"></el-table-column>
               <el-table-column prop="topicId" label="题目编号" width="100"></el-table-column>
-              <el-table-column prop="topicName" label="题目名称" width="100"></el-table-column>
+              <el-table-column prop="topicVo.topicName" label="题目名称" width="200"></el-table-column>
+              <el-table-column prop="progressDesc" label="课题进度" width="200"></el-table-column>
               <el-table-column fixed="topicTypeName" label="操作" width="200">
                 <template slot-scope="scope">
                   <el-button type="primary" icon="el-icon-edit" size="mini" @click="editResult(scope.row)">编辑</el-button>
@@ -127,13 +139,29 @@ export default {
       isFind: true,
       formLabelWidth: '100px',
       tableData: [],
-      topicTypeList: [],
+      topicTypeList: [
+        {key:1,value:"web"},
+        {key:2,value:"操作系统"},
+        {key:3,value:"深度学习"},
+        {key:4,value:"算法"},
+        {key:5,value:"网络相关"},
+        {key:6,value:"嵌入式系统"},
+      ],
+      topicProgress: [
+        {key:11,value:"等待老师确认"},
+        {key:12,value:"等待开题报告"},
+        {key:13,value:"等待中期检查"},
+        {key:14,value:"等待答辩"},
+        {key:15,value:"完成"},
+      ],
       formResult: {
         id: '',
         stuNo: '',
         teacherNo: '',
         topicId: '',
-        topicType: ''
+        topicType: '',
+        progress: '',
+        progressDesc: ''
       },
       dialogFormVisible: false,
       //  分页数据
@@ -159,7 +187,7 @@ export default {
       this.getData()
     },
     getData(){
-      this.service.get('/score')
+      this.service.get('/selectedTopic/getAll')
           .then(res=>{
             console.log(res)
             if(res.data.code === 200){
@@ -199,71 +227,26 @@ export default {
     confirm(){
       console.log(this.formResult)
       this.dialogFormVisible = false
-      if(this.isAdd){
-        //新增
-        this.service.post('/score',this.formResult)
-            .then(res=>{
-              console.log(res)
-              if(res.data.code == 200){
-                this.$message({
-                  message: '新增成功',
-                  type: 'success'
-                })
-                this.getData()
-              }else{
-                this.$message({
-                  message: res.data.msg,
-                  type: 'error'
-                })
-              }
-            })
-            .catch(err=>{
-              console.log(err)
-            })
-      }else if(this.isFind){
-        this.formResult.id = '-1'
-        this.formResult.score = '-1'
-        //查询
-        this.service.post('/score/getScore',this.formResult)
-            .then(res=>{
-              console.log(res)
-              if(res.data.code == 200){
-                this.$message({
-                  message: '查询成功',
-                  type: 'success'
-                })
-                this.tableData = [...res.data.data]
-                this.total = this.tableData.length
-              }else{
-                this.$message({
-                  message: res.data.msg,
-                  type: 'warning'
-                })
-              }
-            })
-            .catch(err=>{
-              console.log("这里出错")
-              console.log(err)
-            })
-      }else{
-        //编辑
-        this.service.put('/score',this.formResult)
-            .then(res=>{
-              console.log(res)
-              if(res.data.code == 200){
-                this.$message({
-                  message: '修改成功',
-                  type: 'success'
-                })
-                this.getData()
-              }else{
-
-              }
-            })
-            .catch(err=>{
-              console.log(err)
-            })
-      }
+      this.service.post("/selectedTopic/getByCondition",this.formResult)
+      .then(res=>{
+        console.log(res)
+        if(res.data.code == 200){
+          this.tableData = [...res.data.data]
+          this.total = this.tableData.length
+          this.$message({
+            message: '查询成功',
+            type: 'success'
+          })
+        }else{
+          this.$message({
+            message: res.data.msg,
+            type: 'error'
+          })
+        }
+      })
+      .catch(err=>{
+        console.log(err)
+      })
     },
     //编辑信息
     editResult(row){
