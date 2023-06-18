@@ -14,9 +14,58 @@
           </el-breadcrumb>
         </el-card>
 
-        <div v-if="role == 1">这里是学生信息</div>
-        <div v-if="role == 2">这里是老师信息</div>
-        <div v-if="role == 3">这里是管理员信息</div>
+        <div v-if="role == 1">
+          <el-card>
+            <el-descriptions title="学生信息">
+              <el-descriptions-item label="姓名">{{stuInfo.stuName}}</el-descriptions-item>
+              <el-descriptions-item label="学号">{{stuInfo.stuNo}}</el-descriptions-item>
+              <el-descriptions-item label="专业">{{stuInfo.majorDesc}}</el-descriptions-item>
+              <el-descriptions-item label="选题编号">{{stuInfo.selectedTopicId}}</el-descriptions-item>
+              <el-descriptions-item label="选题名称">{{stuInfo.topicName}}</el-descriptions-item>
+              <el-descriptions-item label="选题类型">{{stuInfo.topicTypeDesc}}</el-descriptions-item>
+              <el-descriptions-item label="指导老师名称">{{stuInfo.teacherName}}</el-descriptions-item>
+            </el-descriptions>
+          </el-card>
+
+        </div>
+        <div v-if="role == 2">
+<!--          老师信息-->
+          <el-card>
+            <el-descriptions title="老师信息">
+              <el-descriptions-item label="姓名">{{teacherInfo.teacherName}}</el-descriptions-item>
+              <el-descriptions-item label="工号">{{teacherInfo.teacherNo}}</el-descriptions-item>
+              <el-descriptions-item label="指导课题类型">{{teacherInfo.typeDesc}}</el-descriptions-item>
+            </el-descriptions>
+          </el-card>
+<!--          已经指导的学生的数量-->
+          <el-card>
+            <el-table :data="tableData.slice((currentPage -1) * pageSize, currentPage*pageSize)" style="width: 100%">
+              <el-table-column prop="id" label="选题编号" width="200"></el-table-column>
+              <el-table-column prop="stuNo" label="学号" width="200"></el-table-column>
+              <el-table-column prop="stuName" label="学生姓名" width="200"></el-table-column>
+              <el-table-column prop="topicName" label="选题名称" width="200"></el-table-column>
+              <el-table-column prop="progressDesc" label="进度" width="200"></el-table-column>
+            </el-table>
+          </el-card>
+<!--          可以选择的学生的数量-->
+          <el-card>
+            <el-table :data="tableData1.slice((currentPage1 -1) * pageSize1, currentPage1*pageSize1)" style="width: 100%">
+              <el-table-column prop="id" label="选题编号" width="200"></el-table-column>
+              <el-table-column prop="stuNo" label="学号" width="200"></el-table-column>
+              <el-table-column prop="stuName" label="学生姓名" width="200"></el-table-column>
+              <el-table-column prop="topicName" label="选题名称" width="200"></el-table-column>
+              <el-table-column fixed="right" label="操作" width="350">
+                <template slot-scope="scope">
+                  <el-button type="primary" icon="el-icon-edit" size="mini" @click="agree(scope.row)">同意</el-button>
+                  <el-button type="danger" icon="el-icon-delete" size="mini" @click="refuse(scope.row)">拒绝</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-card>
+        </div>
+        <div v-if="role == 3">
+          这里是管理员信息
+        </div>
 
 
       </el-main>
@@ -35,62 +84,109 @@ export default {
   },
   data() {
     return {
+      // 角色信息以及全局存储的相关数据
       role: '',
-      isUpload: false,
-      showResultId: false,
-      isAdd: true,
-      isFind: true,
-      formLabelWidth: '100px',
-      tableData: [
-        //     {
-        //   id: '1',
-        //   cid: '1',
-        //   sid: '2020218000',
-        //   name: '吴子文',
-        //   score: '99',
-        //   course: '组合数学',
-        //   major: '计算机',
-        //   grade: '20',
-        //   classNum: '3'
-        // }
-      ],
-      formResult: {
-        id: '',
-        cid: '',
-        sid: '',
-        name: '',
-        score: '',
-        courseName: '',
-        major: '',
-        grade: '',
-        classNum: ''
+      stuNo: '',
+      teacherNo: '',
+      admin: '',
+
+      stuInfo: {
+        stuNo: '-',
+        stuName: '-',
+        majorDesc: '-',
+        selectedTopicId: '-',
+        topicName: '-',
+        topicTypeDesc: '-',
+        teacherName: '-'
       },
-      dialogFormVisible: false,
+      teacherInfo: {
+        teacherNo: '-',
+        teacherName: '-',
+        typeDesc: '-'
+      },
+      formLabelWidth: '100px',
+      tableData: [],
+      tableData1: [],
+
       //  分页数据
       currentPage: 1,//当前页面数
       total: 0,//总数据数
       pageSizes: [5, 10, 15],
       pageSize: 5, //每页条数
-
+      currentPage1: 1,//当前页面数
+      total1: 0,//总数据数
+      pageSizes1: [5, 10, 15],
+      pageSize1: 5, //每页条数
       //文件上传
       fileList: []
     }
   },
   created() {
     this.role = localStorage.getItem("role")
+    if(this.role === 1){
+      this.stuNo = localStorage.getItem("stuNo")
+    }else if(this.role === 2){
+      this.teacherNo = localStorage.getItem("teacherNo")
+    }else{
+      this.admin = localStorage.getItem("admin")
+    }
     this.getData()
   },
   methods: {
-    upload(){
-      this.isUpload = true
-    },
     flush(){
       this.tableData = {}
       this.formResult = {}
       this.getData()
+      this.getData1()
+    },
+    getStuOrTeacherInfo() {
+      // 根据角色判断查询老师信息还是学生信息
+      if(this.role === 1){
+        this.service.get('/studentInfo/getInfo/' + this.stuNo)
+        .then(res=>{
+          console.log(res)
+          if(res.data.code === 200){
+            this.stuInfo = res.data.data
+            this.$message({
+              message: '信息加载成功',
+              type: 'success'
+            })
+          }else{
+            console.log(res.data.msg)
+            this.$message({
+              message: '查无数据',
+              type: 'error'
+            })
+          }
+        })
+        .catch(err=>{
+          console.log(err)
+        })
+      }else if(this.role === 2){
+        this.service.get('/teacherInfo/getInfo/' + this.teacherNo)
+        .then(res=>{
+          console.log(res)
+          if(res.data.code === 200){
+            this.teacherInfo = res.data.data
+            this.$message({
+              message: '信息加载成功',
+              type: 'success'
+            })
+          }else{
+            console.log(res.data.msg)
+            this.$message({
+              message: '查无数据',
+              type: 'error'
+            })
+          }
+        })
+        .catch(err=>{
+          console.log(err)
+        })
+      }
     },
     getData(){
-      this.service.get('/score')
+      this.service.get('/selectedTopic/getSelectedStuListByTeacherNo' + this.teacherNo)
           .then(res=>{
             console.log(res)
             if(res.data.code === 200){
@@ -114,131 +210,79 @@ export default {
             console.log(err)
           })
     },
-    //新增成绩信息
-    addResult(){
-      this.formResult = {}
-      this.dialogFormVisible = true
-      this.isAdd = true
-      this.isFind = false
-
+    getData1(){
+      this.service.get('/selectedTopic/getSelectingStuListByTeacherNo' + this.teacherNo)
+          .then(res=>{
+            console.log(res)
+            if(res.data.code === 200){
+              this.$message({
+                message: '信息加载成功1',
+                type: 'success'
+              })
+              console.log("请求所有学生信息成功");
+              this.tableData1 = [...res.data.data]
+              this.total1 = this.tableData1.length
+              console.log(this.tableData1.length)
+            }else{
+              console.log(res.data.msg)
+              this.$message({
+                message: '查无数据',
+                type: 'error'
+              })
+            }
+          })
+          .catch(err=>{
+            console.log(err)
+          })
     },
-    //查询成绩信息
-    findResult(){
-      this.formResult = {}
-      this.dialogFormVisible = true
-      this.isAdd = false
-      this.isFind = true
-
+    agree(row){
+      var req = {id : row.id}
+      this.service.post("/selectedTopic/agree",req)
+      .then(res=>{
+        if(res.data.code === 200){
+          this.$message({
+            message: '同意成功',
+            type: 'success'
+          })
+          this.flush()
+        }else{
+          console.log(res.data.msg)
+          this.$message({
+            message: '查无数据',
+            type: 'error'
+          })
+        }
+      })
+      .catch(err=>{
+        console.log(err)
+      })
     },
-    //对话框的确认按钮
-    confirm(){
-      console.log(this.formResult)
-      this.dialogFormVisible = false
-      if(this.isAdd){
-        //新增
-        this.service.post('/score',this.formResult)
-            .then(res=>{
-              console.log(res)
-              if(res.data.code == 200){
-                this.$message({
-                  message: '新增成功',
-                  type: 'success'
-                })
-                this.getData()
-              }else{
-                this.$message({
-                  message: res.data.msg,
-                  type: 'error'
-                })
-              }
-            })
-            .catch(err=>{
-              console.log(err)
-            })
-      }else if(this.isFind){
-        this.formResult.id = '-1'
-        this.formResult.score = '-1'
-        //查询
-        this.service.post('/score/getScore',this.formResult)
-            .then(res=>{
-              console.log(res)
-              if(res.data.code == 200){
-                this.$message({
-                  message: '查询成功',
-                  type: 'success'
-                })
-                this.tableData = [...res.data.data]
-                this.total = this.tableData.length
-              }else{
-                this.$message({
-                  message: res.data.msg,
-                  type: 'warning'
-                })
-              }
-            })
-            .catch(err=>{
-              console.log("这里出错")
-              console.log(err)
-            })
-      }else{
-        //编辑
-        this.service.put('/score',this.formResult)
-            .then(res=>{
-              console.log(res)
-              if(res.data.code == 200){
-                this.$message({
-                  message: '修改成功',
-                  type: 'success'
-                })
-                this.getData()
-              }else{
-
-              }
-            })
-            .catch(err=>{
-              console.log(err)
-            })
-      }
+    refuse(row){
+      var req = {id : row.id}
+      this.service.post("/selectedTopic/refuse",req)
+      .then(res=>{
+        if(res.data.code === 200){
+          this.$message({
+            message: '拒绝成功',
+            type: 'success'
+          })
+          this.flush()
+        }else{
+          console.log(res.data.msg)
+          this.$message({
+            message: '查无数据',
+            type: 'error'
+          })
+        }
+      })
+      .catch(err=>{
+        console.log(err)
+      })
     },
-    //编辑信息
-    editResult(row){
-      this.dialogFormVisible = true
-      this.isAdd = false
-      this.isFind = false
-      this.formResult = row
-    },
-    //删除成绩信息
-    delResult(row){
-      this.$confirm('此操作将删除该条成绩信息, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        console.log("执行删除方法")
-        console.log(row)
-        this.service.delete("/score/" + row.id)
-            .then(res=>{
-              if(res.data.code == 200){
-                this.$message({
-                  type: 'success',
-                  message: '删除成功!'
-                });
-              }else{
 
-              }
-              this.getData()
-            })
-            .catch(err=>{
-              console.log(err)
-            })
 
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        });
-      });
-    },
+
+
     //分页
     handleSizeChange(val) {
       //更改每页条数的时候返回第一页
@@ -249,32 +293,6 @@ export default {
     handleCurrentChange(val) {
       this.currentPage = val
       console.log(`当前页: ${val}`);
-    },
-    //文件上传
-    submitUpload() {
-      this.$refs.upload.submit();
-    },
-    handleRemove(file, fileList) {
-      console.log(file, fileList);
-    },
-    handlePreview(file) {
-      console.log(file);
-    },
-    uploadSuccess(res){
-
-      console.log(res)
-      if(res.code === 200){
-        this.$message({
-          message: '上传成功',
-          type: 'success'
-        })
-      }else{
-        this.$message({
-          message: res.msg,
-          type: 'error'
-        })
-      }
-
     }
   }
 }
