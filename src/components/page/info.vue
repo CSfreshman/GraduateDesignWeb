@@ -14,7 +14,9 @@
           </el-breadcrumb>
         </el-card>
 
-        <div>这里是个人信息</div>
+        <div v-if="role == 1">这里是学生信息</div>
+        <div v-if="role == 2">这里是老师信息</div>
+        <div v-if="role == 3">这里是管理员信息</div>
 
 
       </el-main>
@@ -33,6 +35,7 @@ export default {
   },
   data() {
     return {
+      role: '',
       isUpload: false,
       showResultId: false,
       isAdd: true,
@@ -74,6 +77,7 @@ export default {
     }
   },
   created() {
+    this.role = localStorage.getItem("role")
     this.getData()
   },
   methods: {

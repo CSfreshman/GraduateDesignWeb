@@ -32,6 +32,17 @@
         ]">
           <el-input type="password" v-model="form.password" ></el-input>
         </el-form-item>
+        <el-form-item label="登录角色" :label-width="formLabelWidth">
+          <el-select v-model="form.role" placeholder="请选择">
+            <el-option
+                v-for="item in roles"
+                :key="item.id"
+                :label="item.value"
+                :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="login">登录</el-button>
         </el-form-item>
@@ -48,14 +59,22 @@ export default {
     return {
       form: {
         username: '',
-        password: ''
-      }
+        password: '',
+        role: ''
+      },
+      roles: [
+        {id:1,value:'学生'},
+        {id:2,value: '老师'},
+        {id:3,value: '管理员'}
+      ]
     };
   },
   methods: {
     login() {
       console.log(this.form.username);
       console.log(this.form.password);
+      // 测试使用 之后删除
+      localStorage.setItem("role",this.form.role)
       this.service.post('/admin/login',this.form)
       .then(res => {
         console.log(res)
@@ -65,6 +84,16 @@ export default {
             type: 'success',
             duration: 1000
           });
+          localStorage.setItem("role",this.form.role)
+
+          if(this.form.role === 1){
+            localStorage.setItem("stuNo",this.form.username)
+          }else if(this.form.role === 2){
+            localStorage.setItem("teacherNo",this.form.username)
+          }else{
+            localStorage.setItem("admin",this.form.username)
+          }
+
           this.$router.push('/home');
         }else{
           this.$message({

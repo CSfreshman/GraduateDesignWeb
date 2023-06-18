@@ -17,24 +17,9 @@
         <div class="cont">
           <div class="options">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="findResult">查询</el-button>
-            <el-button type="primary" size="mini" @click="upload">上传<i class="el-icon-upload el-icon--right"></i></el-button>
+
             <el-button type="primary" icon="el-icon-thumb" size="mini" @click="flush">刷新</el-button>
           </div>
-          <!--          文件上传对话框-->
-          <el-dialog :visible.sync="isUpload">
-            <el-upload
-                class="upload-demo"
-                ref="upload"
-                action="http://localhost:8081/score/upload"
-                :on-preview="handlePreview"
-                :on-remove="handleRemove"
-                :on-success="(res)=>uploadSuccess(res)"
-                :auto-upload="false">
-              <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-              <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
-              <div slot="tip" class="el-upload__tip">可上传txt文件</div>
-            </el-upload>
-          </el-dialog>
 
 <!--          查询选题信息-->
           <el-dialog :title="'查询选题信息'" :visible.sync="dialogFormVisible">
@@ -80,7 +65,56 @@
             </div>
           </el-dialog>
 
-
+<!--          更新选题状态对话框-->
+          <el-dialog :title="'更新选题进度'" :visible.sync="editDialogVisible">
+            <el-form>
+              <el-form-item label="选题进度" :label-width="formLabelWidth">
+                <el-select v-model="formResult.progress" placeholder="请选择">
+                  <el-option
+                      v-for="item in topicProgress"
+                      :key="item.key"
+                      :label="item.value"
+                      :value="item.key"
+                  >
+                  </el-option>
+                </el-select>
+              </el-form-item>
+<!--              TODO:v-model中绑定的内容待填-->
+              <div v-if="formResult.progress === 13">
+                <el-form-item :label="'中期检查地点'" :label-width="formLabelWidth">
+                  <el-input v-model="updateResult.midcheckLocation" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item :label="'中期检查时间'" :label-width="formLabelWidth">
+                  <el-input v-model="updateResult.midcheckDate" autocomplete="off"></el-input>
+                </el-form-item>
+              </div>
+              <div v-if="formResult.progress === 14">
+                <el-form-item :label="'中期检查意见'" :label-width="formLabelWidth">
+                  <el-input v-model="updateResult.midcheckOpinion" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item :label="'答辩地点'" :label-width="formLabelWidth">
+                  <el-input v-model="updateResult.defenseLocation" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item :label="'答辩时间'" :label-width="formLabelWidth">
+                  <el-input v-model="updateResult.defenseDate" autocomplete="off"></el-input>
+                </el-form-item>
+              </div>
+              <div v-if="formResult.progress === 15">
+                <el-form-item :label="'答辩记录'" :label-width="formLabelWidth">
+                  <el-input v-model="updateResult.defenseRecord" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item :label="'评阅教师成绩'" :label-width="formLabelWidth">
+                  <el-input v-model="updateResult.reviewerScore" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item :label="'答辩小组成绩'" :label-width="formLabelWidth">
+                  <el-input v-model="updateResult.committeeScore" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item :label="'最终成绩'" :label-width="formLabelWidth">
+                  <el-input v-model="updateResult.finalScore" autocomplete="off"></el-input>
+                </el-form-item>
+              </div>
+            </el-form>
+          </el-dialog>
 
           <div>
             <!--    主体表格部分-->
@@ -163,7 +197,21 @@ export default {
         progress: '',
         progressDesc: ''
       },
+      updateResult :{
+        selectTopicId: '',
+        progress: '',
+        midcheckDate: '',
+        midcheckLocation: '',
+        midcheckOpinion: '',
+        defenseDate: '',
+        defenseLocation: '',
+        defenseRecord: '',
+        reviewerScore: '',
+        committeeScore: '',
+        finalScore: ''
+      },
       dialogFormVisible: false,
+      editDialogVisible: true,
       //  分页数据
       currentPage: 1,//当前页面数
       total: 0,//总数据数
@@ -250,10 +298,8 @@ export default {
     },
     //编辑信息
     editResult(row){
-      this.dialogFormVisible = true
-      this.isAdd = false
-      this.isFind = false
-      this.formResult = row
+      this.editDialogVisible = true
+
     },
     //删除成绩信息
     delResult(row){
