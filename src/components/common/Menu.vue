@@ -32,16 +32,15 @@
         <el-menu-item index="/selectedTopic">
           <span>选题情况</span>
         </el-menu-item>
-        <el-menu-item index="/score">
-            <span>成绩管理</span>
-        </el-menu-item>
         <el-menu-item index="/midcheck">
           <span>中期检查</span>
         </el-menu-item>
         <el-menu-item index="/defense">
           <span>答辩情况</span>
         </el-menu-item>
-
+        <el-menu-item index="/score">
+          <span>成绩管理</span>
+        </el-menu-item>
 
       </el-menu>
     </el-aside>
