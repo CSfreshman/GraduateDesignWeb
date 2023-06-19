@@ -17,7 +17,7 @@
         <div class="cont">
           <div class="options">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="findResult">查询</el-button>
-            <el-button type="primary" icon="el-icon-edit" size="mini" @click="addResult">添加</el-button>
+            <el-button type="primary" icon="el-icon-edit" size="mini" @click="update">更新</el-button>
             <el-button type="primary" size="mini" @click="upload">上传<i class="el-icon-upload el-icon--right"></i></el-button>
             <el-button type="primary" icon="el-icon-thumb" size="mini" @click="flush">刷新</el-button>
           </div>
@@ -37,49 +37,28 @@
             </el-upload>
           </el-dialog>
           <!--    嵌套表单的对话框-->
-          <el-dialog :title="isAdd ? '新增成绩信息' : isFind ? '查询成绩信息' : '编辑成绩信息' " :visible.sync="dialogFormVisible">
+          <el-dialog :title="isFind ? '查询答辩情况' : '更新答辩情况' " :visible.sync="dialogFormVisible">
             <span class = "span" v-if="!(isAdd || isFind)">该操作只需要修改成绩</span>
             <el-form :model="formResult">
               <!--        学号-->
               <el-form-item label="学号" :label-width="formLabelWidth">
                 <el-input v-model="formResult.sid" autocomplete="off"></el-input>
               </el-form-item>
-              <!--        姓名-->
-              <el-form-item label="姓名" :label-width="formLabelWidth">
-                <el-input v-model="formResult.name" autocomplete="off"></el-input>
+              <!--        选题编号-->
+              <el-form-item label="选题编号" :label-width="formLabelWidth">
+                <el-input v-model="formResult.topicId" autocomplete="off"></el-input>
               </el-form-item>
-              <!--        课程名-->
-              <el-form-item label="课程名" :label-width="formLabelWidth">
-                <el-input v-model="formResult.courseName" autocomplete="off"></el-input>
+              <!--        答辩日期-->
+              <el-form-item label="答辩日期" :label-width="formLabelWidth">
+                <el-date-picker v-model="formResult.date" type="datetime" placeholder="选择日期时间"></el-date-picker>
               </el-form-item>
-              <!--        得分-->
-              <el-form-item label="成绩" :label-width="formLabelWidth" v-if="!isFind">
-                <el-input v-model="formResult.score" autocomplete="off"></el-input>
+              <!--        答辩地点-->
+              <el-form-item label="答辩地点" :label-width="formLabelWidth">
+                <el-input v-model="formResult.location" autocomplete="off"></el-input>
               </el-form-item>
-              <!--        专业班级-->
-              <el-form-item label="专业" :label-width="formLabelWidth" v-if="isFind">
-                <el-select v-model="formResult.major" placeholder="请选择专业">
-                  <el-option value="计算机"></el-option>
-                  <el-option value="物联网"></el-option>
-                  <el-option value="电信科"></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="年级" :label-width="formLabelWidth" v-if="isFind">
-                <el-select v-model="formResult.grade" placeholder="请选择年级">
-                  <el-option value="19"></el-option>
-                  <el-option value="20"></el-option>
-                  <el-option value="21"></el-option>
-                  <el-option value="22"></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="班级" :label-width="formLabelWidth" v-if="isFind">
-                <el-select v-model="formResult.classNum" placeholder="请选择班级">
-                  <el-option value="1"></el-option>
-                  <el-option value="2"></el-option>
-                  <el-option value="3"></el-option>
-                  <el-option value="4"></el-option>
-                  <el-option value="5"></el-option>
-                </el-select>
+              <!--        答辩记录-->
+              <el-form-item label="答辩记录" :label-width="formLabelWidth">
+                <el-input v-model="formResult.record" autocomplete="off"></el-input>
               </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -90,14 +69,11 @@
           <div>
             <!--    主体表格部分-->
             <el-table :data="tableData.slice((currentPage -1) * pageSize, currentPage*pageSize)" style="width: 100%">
-              <el-table-column prop="id" label="成绩编号" width="0" v-if="showResultId"></el-table-column>
-              <el-table-column prop="sid" label="学号" width="100"></el-table-column>
-              <el-table-column prop="name" label="姓名" width="100"></el-table-column>
-              <el-table-column prop="score" label="成绩" width="100"></el-table-column>
-              <el-table-column prop="courseName" label="课程" width="100"></el-table-column>
-              <el-table-column prop="major" label="专业" width="100"></el-table-column>
-              <el-table-column prop="grade" label="年级" width="100"></el-table-column>
-              <el-table-column prop="classNum" label="班级" width="100"></el-table-column>
+              <el-table-column prop = "id" label = "学号" width="100"></el-table-column>
+              <el-table-column prop="topicId" label="选题编号" width="100"></el-table-column>
+              <el-table-column prop="date" label="答辩日期" width="200"></el-table-column>
+              <el-table-column prop="location" label="答辩地点" width="150"></el-table-column>
+              <el-table-column prop="record" label="答辩记录" width="250"></el-table-column>
               <el-table-column fixed="right" label="操作" width="200">
                 <template slot-scope="scope">
                   <el-button type="primary" icon="el-icon-edit" size="mini" @click="editResult(scope.row)">编辑</el-button>
@@ -157,14 +133,10 @@ export default {
       ],
       formResult: {
         id: '',
-        cid: '',
-        sid: '',
-        name: '',
-        score: '',
-        courseName: '',
-        major: '',
-        grade: '',
-        classNum: ''
+        topicId: '',
+        date: '',
+        location: '',
+        record: ''
       },
       dialogFormVisible: false,
       //  分页数据
@@ -172,7 +144,6 @@ export default {
       total: 0,//总数据数
       pageSizes: [5, 10, 15],
       pageSize: 5, //每页条数
-
       //文件上传
       fileList: []
     }
@@ -214,13 +185,18 @@ export default {
             console.log(err)
           })
     },
+    //更新答辩信息
+    update(){
+      this.formDefense = {}
+      this.dialogFormVisible = true
+      this.isFind = false
+    },
     //新增成绩信息
     addResult(){
       this.formResult = {}
       this.dialogFormVisible = true
       this.isAdd = true
       this.isFind = false
-
     },
     //查询成绩信息
     findResult(){
@@ -228,40 +204,14 @@ export default {
       this.dialogFormVisible = true
       this.isAdd = false
       this.isFind = true
-
     },
     //对话框的确认按钮
     confirm(){
       console.log(this.formResult)
       this.dialogFormVisible = false
-      if(this.isAdd){
-        //新增
-        this.service.post('/score',this.formResult)
+      if(this.isFind){
+        this.service.post('/defense/find', this.formDefense)
             .then(res=>{
-              console.log(res)
-              if(res.data.code == 200){
-                this.$message({
-                  message: '新增成功',
-                  type: 'success'
-                })
-                this.getData()
-              }else{
-                this.$message({
-                  message: res.data.msg,
-                  type: 'error'
-                })
-              }
-            })
-            .catch(err=>{
-              console.log(err)
-            })
-      }else if(this.isFind){
-        this.formResult.id = '-1'
-        this.formResult.score = '-1'
-        //查询
-        this.service.post('/score/getScore',this.formResult)
-            .then(res=>{
-              console.log(res)
               if(res.data.code == 200){
                 this.$message({
                   message: '查询成功',
@@ -277,22 +227,22 @@ export default {
               }
             })
             .catch(err=>{
-              console.log("这里出错")
               console.log(err)
             })
-      }else{
-        //编辑
-        this.service.put('/score',this.formResult)
+      }else {
+        this.service.put('/score', this.formDefense)
             .then(res=>{
-              console.log(res)
               if(res.data.code == 200){
                 this.$message({
-                  message: '修改成功',
+                  message: '更新成功',
                   type: 'success'
                 })
                 this.getData()
               }else{
-
+                this.$message({
+                  message: res.data.msg,
+                  type: 'error'
+                })
               }
             })
             .catch(err=>{
@@ -324,14 +274,12 @@ export default {
                   message: '删除成功!'
                 });
               }else{
-
               }
               this.getData()
             })
             .catch(err=>{
               console.log(err)
             })
-
       }).catch(() => {
         this.$message({
           type: 'info',
@@ -361,7 +309,6 @@ export default {
       console.log(file);
     },
     uploadSuccess(res){
-
       console.log(res)
       if(res.code === 200){
         this.$message({
@@ -374,7 +321,6 @@ export default {
           type: 'error'
         })
       }
-
     }
   }
 }
@@ -385,10 +331,8 @@ export default {
   .content {
     height: 600px;
   }
-
   .cont {
     margin: 20px;
-
     .options {
       margin-bottom: 20px;
     }
@@ -402,3 +346,5 @@ export default {
   }
 }
 </style>
+
+
