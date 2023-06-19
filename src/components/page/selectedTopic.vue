@@ -69,7 +69,7 @@
           <el-dialog :title="'更新选题进度'" :visible.sync="editDialogVisible">
             <el-form>
               <el-form-item label="选题进度" :label-width="formLabelWidth">
-                <el-select v-model="formResult.progress" placeholder="请选择">
+                <el-select v-model="updateResult.progress" placeholder="请选择">
                   <el-option
                       v-for="item in topicProgress"
                       :key="item.key"
@@ -79,28 +79,40 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-              <div v-if="formResult.progress === 13">
+              <div v-if="updateResult.progress === 13">
                 <el-form-item :label="'中期检查地点'" :label-width="formLabelWidth">
-                  <el-input v-model="updateResult.midcheckLocation" autocomplete="off"></el-input>
+                  <el-input v-model="updateResult.midCheckLocation" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item :label="'中期检查时间'" :label-width="formLabelWidth">
-                  <el-input v-model="updateResult.midcheckDate" autocomplete="off"></el-input>
+                  <el-date-picker
+                      v-model="updateResult.midCheckDate"
+                      type="datetime"
+                      placeholder="选择日期时间">
+                  </el-date-picker>
+
                 </el-form-item>
               </div>
-              <div v-if="formResult.progress === 14">
+              <div v-if="updateResult.progress === 14">
                 <el-form-item :label="'中期检查意见'" :label-width="formLabelWidth">
-                  <el-input v-model="updateResult.midcheckOpinion" autocomplete="off"></el-input>
+                  <el-input v-model="updateResult.midCheckOpinion" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item :label="'答辩地点'" :label-width="formLabelWidth">
                   <el-input v-model="updateResult.defenseLocation" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item :label="'答辩时间'" :label-width="formLabelWidth">
-                  <el-input v-model="updateResult.defenseDate" autocomplete="off"></el-input>
+                  <el-date-picker
+                      v-model="updateResult.defenseDate"
+                      type="datetime"
+                      placeholder="选择日期时间">
+                  </el-date-picker>
                 </el-form-item>
               </div>
-              <div v-if="formResult.progress === 15">
+              <div v-if="updateResult.progress === 15">
                 <el-form-item :label="'答辩记录'" :label-width="formLabelWidth">
                   <el-input v-model="updateResult.defenseRecord" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item :label="'指导教师成绩'" :label-width="formLabelWidth">
+                  <el-input v-model="updateResult.advisorScore" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item :label="'评阅教师成绩'" :label-width="formLabelWidth">
                   <el-input v-model="updateResult.reviewerScore" autocomplete="off"></el-input>
@@ -202,17 +214,19 @@ export default {
         progressDesc: ''
       },
       updateResult :{
-        selectTopicId: '',
+        id: '',
+        originalProgress: '',
         progress: '',
-        midcheckDate: '',
-        midcheckLocation: '',
-        midcheckOpinion: '',
+        midCheckDate: '',
+        midCheckLocation: '',
+        midCheckOpinion: '',
         defenseDate: '',
         defenseLocation: '',
         defenseRecord: '',
         reviewerScore: '',
         committeeScore: '',
-        finalScore: ''
+        finalScore: '',
+        advisorScore: ''
       },
       dialogFormVisible: false,
       editDialogVisible: false,
@@ -303,7 +317,8 @@ export default {
     //编辑信息
     editResult(row){
       this.editDialogVisible = true
-
+      this.updateResult.id = row.id
+      this.updateResult.originalProgress = row.progress
     },
     //删除成绩信息
     delResult(row){
@@ -373,6 +388,31 @@ export default {
         })
       }
 
+    },
+    confirmEdit() {
+      this.editDialogVisible = false;
+      this.service.post("/selectedTopic/update", this.updateResult)
+          .then(res=>{
+            console.log(res)
+            if(res.data.code == 200){
+              this.$message({
+                message: '更新成功',
+                type: 'success'
+              })
+              this.flush()
+            }else{
+              this.$message({
+                message: res.data.msg,
+                type: 'error'
+              })
+            }
+          })
+          .catch(() => {
+            this.$message({
+              type: 'error',
+              message: '出错了'
+            });
+          })
     }
   }
 }
