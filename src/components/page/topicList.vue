@@ -118,6 +118,7 @@ export default {
   data () {
     return {
       isAdd: true,
+      stuNo: '',
       //表格数据
       tableData: [],
       teacherData: [],

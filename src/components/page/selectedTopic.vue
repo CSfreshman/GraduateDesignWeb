@@ -79,7 +79,6 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-<!--              TODO:v-model中绑定的内容待填-->
               <div v-if="formResult.progress === 13">
                 <el-form-item :label="'中期检查地点'" :label-width="formLabelWidth">
                   <el-input v-model="updateResult.midcheckLocation" autocomplete="off"></el-input>
@@ -113,7 +112,12 @@
                   <el-input v-model="updateResult.finalScore" autocomplete="off"></el-input>
                 </el-form-item>
               </div>
+
             </el-form>
+            <div slot="footer" class="dialog-footer">
+              <el-button @click="dialogFormVisible = false">取 消</el-button>
+              <el-button type="primary" @click="confirmEdit">确 定</el-button>
+            </div>
           </el-dialog>
 
           <div>
@@ -128,7 +132,7 @@
               <el-table-column prop="topicId" label="题目编号" width="100"></el-table-column>
               <el-table-column prop="topicVo.topicName" label="题目名称" width="200"></el-table-column>
               <el-table-column prop="progressDesc" label="课题进度" width="200"></el-table-column>
-              <el-table-column fixed="topicTypeName" label="操作" width="200">
+              <el-table-column fixed="right" label="操作" width="200">
                 <template slot-scope="scope">
                   <el-button type="primary" icon="el-icon-edit" size="mini" @click="editResult(scope.row)">编辑</el-button>
                   <el-button type="danger" icon="el-icon-delete" size="mini" @click="delResult(scope.row)">删除</el-button>
@@ -211,7 +215,7 @@ export default {
         finalScore: ''
       },
       dialogFormVisible: false,
-      editDialogVisible: true,
+      editDialogVisible: false,
       //  分页数据
       currentPage: 1,//当前页面数
       total: 0,//总数据数

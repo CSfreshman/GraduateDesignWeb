@@ -19,10 +19,11 @@
             <el-descriptions title="学生信息">
               <el-descriptions-item label="姓名">{{stuInfo.stuName}}</el-descriptions-item>
               <el-descriptions-item label="学号">{{stuInfo.stuNo}}</el-descriptions-item>
-              <el-descriptions-item label="专业">{{stuInfo.majorDesc}}</el-descriptions-item>
+              <el-descriptions-item label="专业">{{stuInfo.majorName}}</el-descriptions-item>
               <el-descriptions-item label="选题编号">{{stuInfo.selectedTopicId}}</el-descriptions-item>
               <el-descriptions-item label="选题名称">{{stuInfo.topicName}}</el-descriptions-item>
               <el-descriptions-item label="选题类型">{{stuInfo.topicTypeDesc}}</el-descriptions-item>
+              <el-descriptions-item label="选题进度">{{stuInfo.progressDesc}}</el-descriptions-item>
               <el-descriptions-item label="指导老师名称">{{stuInfo.teacherName}}</el-descriptions-item>
             </el-descriptions>
           </el-card>
@@ -35,6 +36,7 @@
               <el-descriptions-item label="姓名">{{teacherInfo.teacherName}}</el-descriptions-item>
               <el-descriptions-item label="工号">{{teacherInfo.teacherNo}}</el-descriptions-item>
               <el-descriptions-item label="指导课题类型">{{teacherInfo.typeDesc}}</el-descriptions-item>
+              <el-descriptions-item label="剩余可以指导学生数">{{teacherInfo.stock}}</el-descriptions-item>
             </el-descriptions>
           </el-card>
 <!--          已经指导的学生的数量-->
@@ -54,6 +56,7 @@
               <el-table-column prop="stuNo" label="学号" width="200"></el-table-column>
               <el-table-column prop="stuName" label="学生姓名" width="200"></el-table-column>
               <el-table-column prop="topicName" label="选题名称" width="200"></el-table-column>
+              <el-table-column prop="progressDesc" label="进度" width="200"></el-table-column>
               <el-table-column fixed="right" label="操作" width="350">
                 <template slot-scope="scope">
                   <el-button type="primary" icon="el-icon-edit" size="mini" @click="agree(scope.row)">同意</el-button>
@@ -93,16 +96,18 @@ export default {
       stuInfo: {
         stuNo: '-',
         stuName: '-',
-        majorDesc: '-',
+        majorName: '-',
         selectedTopicId: '-',
         topicName: '-',
         topicTypeDesc: '-',
-        teacherName: '-'
+        teacherName: '-',
+        progressDesc: '-'
       },
       teacherInfo: {
         teacherNo: '-',
         teacherName: '-',
-        typeDesc: '-'
+        typeDesc: '-',
+        stock: '-'
       },
       formLabelWidth: '100px',
       tableData: [],
@@ -123,29 +128,42 @@ export default {
   },
   created() {
     this.role = localStorage.getItem("role")
-    if(this.role === 1){
+    console.log(this.role)
+    if(this.role == 1){
       this.stuNo = localStorage.getItem("stuNo")
-    }else if(this.role === 2){
+      this.getStuOrTeacherInfo()
+    }else if(this.role == 2){
+      console.log("现在是角色2")
       this.teacherNo = localStorage.getItem("teacherNo")
+      this.getStuOrTeacherInfo()
+      this.getData()
+      this.getData1()
     }else{
       this.admin = localStorage.getItem("admin")
     }
-    this.getData()
   },
   methods: {
     flush(){
       this.tableData = {}
       this.formResult = {}
-      this.getData()
-      this.getData1()
+      if(this.role === 1){
+        this.getStuOrTeacherInfo()
+      }else if(this.role === 2){
+        this.getData()
+        this.getData1()
+      }else{
+
+      }
+
+
     },
     getStuOrTeacherInfo() {
       // 根据角色判断查询老师信息还是学生信息
-      if(this.role === 1){
+      if(this.role == 1){
         this.service.get('/studentInfo/getInfo/' + this.stuNo)
         .then(res=>{
           console.log(res)
-          if(res.data.code === 200){
+          if(res.data.code == 200){
             this.stuInfo = res.data.data
             this.$message({
               message: '信息加载成功',
@@ -162,11 +180,11 @@ export default {
         .catch(err=>{
           console.log(err)
         })
-      }else if(this.role === 2){
+      }else if(this.role == 2){
         this.service.get('/teacherInfo/getInfo/' + this.teacherNo)
         .then(res=>{
           console.log(res)
-          if(res.data.code === 200){
+          if(res.data.code == 200){
             this.teacherInfo = res.data.data
             this.$message({
               message: '信息加载成功',
@@ -186,10 +204,10 @@ export default {
       }
     },
     getData(){
-      this.service.get('/selectedTopic/getSelectedStuListByTeacherNo' + this.teacherNo)
+      this.service.get('/selectedTopic/getSelectedStuListByTeacherNo/' + this.teacherNo)
           .then(res=>{
             console.log(res)
-            if(res.data.code === 200){
+            if(res.data.code == 200){
               this.$message({
                 message: '信息加载成功',
                 type: 'success'
@@ -211,10 +229,10 @@ export default {
           })
     },
     getData1(){
-      this.service.get('/selectedTopic/getSelectingStuListByTeacherNo' + this.teacherNo)
+      this.service.get('/selectedTopic/getSelectingStuListByTeacherNo/' + this.teacherNo)
           .then(res=>{
             console.log(res)
-            if(res.data.code === 200){
+            if(res.data.code == 200){
               this.$message({
                 message: '信息加载成功1',
                 type: 'success'
