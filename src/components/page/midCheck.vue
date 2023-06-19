@@ -18,13 +18,14 @@
           <div class="options">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="findResult">查询</el-button>
             <el-button type="primary" icon="el-icon-edit" size="mini" @click="update">更新</el-button>
-            <el-button type="primary" size="mini" @click="upload">上传<i class="el-icon-upload el-icon--right"></i></el-button>
+            <el-button type="primary" size="mini" @click="upload">上传<i class="el-icon-upload el-icon--right"></i>
+            </el-button>
             <el-button type="primary" icon="el-icon-thumb" size="mini" @click="flush">刷新</el-button>
           </div>
 
           <!--    嵌套表单的对话框-->
           <el-dialog :title="isFind ? '查询中期检查情况' : '更新中期检查情况' " :visible.sync="dialogFormVisible">
-            <span class = "span" v-if="!(isAdd || isFind)">该操作只需要修改成绩</span>
+            <span class="span" v-if="!(isAdd || isFind)">该操作只需要修改成绩</span>
             <el-form :model="formResult">
               <el-form-item label="选题编号" :label-width="formLabelWidth">
                 <el-input v-model="formResult.selectTopicId" autocomplete="off"></el-input>
@@ -47,17 +48,24 @@
           <div>
             <!--    主体表格部分-->
             <el-table :data="tableData.slice((currentPage -1) * pageSize, currentPage*pageSize)" style="width: 100%">
-              <el-table-column prop = "id" label = "学号" width="100"></el-table-column>
-              <el-table-column prop="selectTopicId" label="选题编号" width="100"></el-table-column>
-              <el-table-column prop="date" label="中期检查日期" width="200"></el-table-column>
-              <el-table-column prop="opinion" label="中期检查意见" width="250"></el-table-column>
+              <el-table-column prop="id" label="编号" width="100"></el-table-column>
+              <el-table-column prop="stuNo" label="学号" width="100"></el-table-column>
+              <el-table-column prop="stuName" label="姓名" width="100"></el-table-column>
+              <el-table-column prop="teacherName" label="指导老师姓名" width="120"></el-table-column>
+              <el-table-column prop="selectedTopicId" label="选题编号" width="100"></el-table-column>
+              <el-table-column prop="topicName" label="选题名称" width="100"></el-table-column>
+              <el-table-column prop="date" label="中期检查日期" width="120"></el-table-column>
               <el-table-column prop="location" label="中期检查地点" width="150"></el-table-column>
-              <el-table-column fixed="right" label="操作" width="200">
-                <template slot-scope="scope">
-                  <el-button type="primary" icon="el-icon-edit" size="mini" @click="editResult(scope.row)">编辑</el-button>
-                  <el-button type="danger" icon="el-icon-delete" size="mini" @click="delResult(scope.row)">删除</el-button>
-                </template>
-              </el-table-column>
+              <el-table-column prop="opinion" label="中期检查意见" width="150"></el-table-column>
+              <el-table-column prop="progressDesc" label="进度" width="150"></el-table-column>
+<!--              <el-table-column fixed="right" label="操作" width="200">-->
+<!--                <template slot-scope="scope">-->
+<!--                  <el-button type="primary" icon="el-icon-edit" size="mini" @click="editResult(scope.row)">编辑-->
+<!--                  </el-button>-->
+<!--                  <el-button type="danger" icon="el-icon-delete" size="mini" @click="delResult(scope.row)">删除-->
+<!--                  </el-button>-->
+<!--                </template>-->
+<!--              </el-table-column>-->
             </el-table>
           </div>
           <!--    分页部分-->
@@ -83,6 +91,7 @@
 <script>
 import Menu from "@/components/common/Menu";
 import Header from "@/components/common/Header";
+
 export default {
   name: "midCheck",
   components: {
@@ -96,26 +105,8 @@ export default {
       isAdd: true,
       isFind: true,
       formLabelWidth: '100px',
-      tableData: [
-        //     {
-        //   id: '1',
-        //   cid: '1',
-        //   sid: '2020218000',
-        //   name: '吴子文',
-        //   score: '99',
-        //   course: '组合数学',
-        //   major: '计算机',
-        //   grade: '20',
-        //   classNum: '3'
-        // }
-      ],
-      formResult: {
-        id: '',
-        selectTopicId: '',
-        date: '',
-        opinion: '',
-        location: ''
-      },
+      tableData: [],
+      formResult: {},
       dialogFormVisible: false,
       //  分页数据
       currentPage: 1,//当前页面数
@@ -131,19 +122,19 @@ export default {
     this.getData()
   },
   methods: {
-    upload(){
+    upload() {
       this.isUpload = true
     },
-    flush(){
+    flush() {
       this.tableData = {}
       this.formResult = {}
       this.getData()
     },
-    getData(){
-      this.service.get('/midterm_check')
-          .then(res=>{
+    getData() {
+      this.service.get('/midtermCheck/getAll')
+          .then(res => {
             console.log(res)
-            if(res.data.code === 200){
+            if (res.data.code == 200) {
               this.$message({
                 message: '信息加载成功',
                 type: 'success'
@@ -151,7 +142,7 @@ export default {
               this.tableData = [...res.data.data]
               this.total = this.tableData.length
               console.log(this.tableData.length)
-            }else{
+            } else {
               console.log(res.data.msg)
               this.$message({
                 message: '查无数据',
@@ -159,17 +150,17 @@ export default {
               })
             }
           })
-          .catch(err=>{
+          .catch(err => {
             console.log(err)
           })
     },
-    update(){
+    update() {
       this.formResult = {}
       this.dialogFormVisible = true
       this.isFind = false
     },
     //新增成绩信息
-    addResult(){
+    addResult() {
       this.formResult = {}
       this.dialogFormVisible = true
       this.isAdd = true
@@ -177,7 +168,7 @@ export default {
 
     },
     //查询成绩信息
-    findResult(){
+    findResult() {
       this.formResult = {}
       this.dialogFormVisible = true
       this.isAdd = false
@@ -185,58 +176,58 @@ export default {
 
     },
     //对话框的确认按钮
-    confirm(){
+    confirm() {
       this.dialogFormVisible = false
-      if(this.isFind){
+      if (this.isFind) {
         this.service.post('/midterm_check/find', this.formMidtermCheck)
-            .then(res=>{
-              if(res.data.code == 200){
+            .then(res => {
+              if (res.data.code == 200) {
                 this.$message({
                   message: '查询成功',
                   type: 'success'
                 })
                 this.tableData = [...res.data.data]
                 this.total = this.tableData.length
-              }else{
+              } else {
                 this.$message({
                   message: res.data.msg,
                   type: 'warning'
                 })
               }
             })
-            .catch(err=>{
+            .catch(err => {
               console.log(err)
             })
-      }else{
+      } else {
         this.service.put('/midterm_check', this.formMidtermCheck)
-            .then(res=>{
-              if(res.data.code == 200){
+            .then(res => {
+              if (res.data.code == 200) {
                 this.$message({
                   message: '更新成功',
                   type: 'success'
                 })
                 this.getData()
-              }else{
+              } else {
                 this.$message({
                   message: res.data.msg,
                   type: 'error'
                 })
               }
             })
-            .catch(err=>{
+            .catch(err => {
               console.log(err)
             })
       }
     },
     //编辑信息
-    editResult(row){
+    editResult(row) {
       this.dialogFormVisible = true
       this.isAdd = false
       this.isFind = false
       this.formResult = row
     },
     //删除成绩信息
-    delResult(row){
+    delResult(row) {
       this.$confirm('此操作将删除该条成绩信息, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -245,18 +236,18 @@ export default {
         console.log("执行删除方法")
         console.log(row)
         this.service.delete("/score/" + row.id)
-            .then(res=>{
-              if(res.data.code == 200){
+            .then(res => {
+              if (res.data.code == 200) {
                 this.$message({
                   type: 'success',
                   message: '删除成功!'
                 });
-              }else{
+              } else {
 
               }
               this.getData()
             })
-            .catch(err=>{
+            .catch(err => {
               console.log(err)
             })
 
@@ -288,15 +279,15 @@ export default {
     handlePreview(file) {
       console.log(file);
     },
-    uploadSuccess(res){
+    uploadSuccess(res) {
 
       console.log(res)
-      if(res.code === 200){
+      if (res.code === 200) {
         this.$message({
           message: '上传成功',
           type: 'success'
         })
-      }else{
+      } else {
         this.$message({
           message: res.msg,
           type: 'error'
@@ -320,11 +311,13 @@ export default {
     .options {
       margin-bottom: 20px;
     }
-    .span{
+
+    .span {
       color: red;
     }
+
     //弹出的对话框底部按钮居中
-    .dialog-footer{
+    .dialog-footer {
       text-align: center;
     }
   }
