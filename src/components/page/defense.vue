@@ -130,19 +130,7 @@ export default {
       isAdd: true,
       isFind: true,
       formLabelWidth: '100px',
-      tableData: [
-        //     {
-        //   id: '1',
-        //   cid: '1',
-        //   sid: '2020218000',
-        //   name: '吴子文',
-        //   score: '99',
-        //   course: '组合数学',
-        //   major: '计算机',
-        //   grade: '20',
-        //   classNum: '3'
-        // }
-      ],
+      tableData: [],
       formResult: {
         id: '',
         topicId: '',

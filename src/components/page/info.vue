@@ -26,16 +26,16 @@
               <el-descriptions-item label="选题进度">{{stuInfo.progressDesc}}</el-descriptions-item>
               <el-descriptions-item label="指导老师名称">{{stuInfo.teacherName}}</el-descriptions-item>
               <el-descriptions-item v-show="false"></el-descriptions-item>
-              <el-descriptions-item label="中期检查地点">{{stuInfo.midCheckLocation}}</el-descriptions-item>
-              <el-descriptions-item label="中期检查日期">{{stuInfo.midCheckDate}}</el-descriptions-item>
-              <el-descriptions-item label="中期检查意见">{{stuInfo.midCheckOpinion}}</el-descriptions-item>
-              <el-descriptions-item label="答辩地点">{{stuInfo.defenseLocation}}</el-descriptions-item>
-              <el-descriptions-item label="答辩日期">{{stuInfo.defenseDate}}</el-descriptions-item>
-              <el-descriptions-item label="答辩结果">{{stuInfo.defenseRecord}}</el-descriptions-item>
-              <el-descriptions-item label="指导老师成绩">{{stuInfo.advisorScore}}</el-descriptions-item>
-              <el-descriptions-item label="评阅教师成绩">{{stuInfo.reviewerScore}}</el-descriptions-item>
-              <el-descriptions-item label="答辩小组成绩">{{stuInfo.committeeScore}}</el-descriptions-item>
-              <el-descriptions-item label="最终成绩">{{stuInfo.finalScore}}</el-descriptions-item>
+              <el-descriptions-item label="中期检查地点">{{midCheck.location}}</el-descriptions-item>
+              <el-descriptions-item label="中期检查日期">{{midCheck.date}}</el-descriptions-item>
+              <el-descriptions-item label="中期检查意见">{{midCheck.opinion}}</el-descriptions-item>
+              <el-descriptions-item label="答辩地点">{{defense.location}}</el-descriptions-item>
+              <el-descriptions-item label="答辩日期">{{defense.date}}</el-descriptions-item>
+              <el-descriptions-item label="答辩结果">{{defense.record}}</el-descriptions-item>
+              <el-descriptions-item label="指导老师成绩">{{score.advisorScore}}</el-descriptions-item>
+              <el-descriptions-item label="评阅教师成绩">{{score.reviewerScore}}</el-descriptions-item>
+              <el-descriptions-item label="答辩小组成绩">{{score.committeeScore}}</el-descriptions-item>
+              <el-descriptions-item label="最终成绩">{{score.finalScore}}</el-descriptions-item>
             </el-descriptions>
           </el-card>
 
@@ -103,8 +103,11 @@ export default {
       stuNo: '',
       teacherNo: '',
       admin: '',
-
+      midCheck: '',
+      defense: '',
+      score: '',
       stuInfo: {
+        id: '',
         stuNo: '-',
         stuName: '-',
         majorName: '-',
@@ -112,6 +115,7 @@ export default {
         topicName: '-',
         topicTypeDesc: '-',
         teacherName: '-',
+        progress: '',
         progressDesc: '-'
       },
       teacherInfo: {
@@ -180,6 +184,16 @@ export default {
               message: '信息加载成功',
               type: 'success'
             })
+            if(this.stuInfo.progress == 13){
+              this.getMidCheckInfoByStuId()
+            }else if(this.stuInfo.progress == 14){
+              this.getMidCheckInfoByStuId()
+              this.getDefenseInfoByStuId()
+            }else if (this.stuInfo.progress == 15){
+              this.getMidCheckInfoByStuId()
+              this.getDefenseInfoByStuId()
+              this.getScoreInfoByStuId()
+            }
           }else{
             console.log(res.data.msg)
             this.$message({
@@ -310,8 +324,69 @@ export default {
     },
 
 
-
-
+    getMidCheckInfoByStuId(){
+      this.service.get("/midtermCheck/getByStuId/"+this.stuInfo.id)
+          .then(res=>{
+            if(res.data.code === 200){
+              this.$message({
+                message: '中期检查信息加载成功',
+                type: 'success'
+              })
+              this.midCheck = res.data.data
+            }else{
+              console.log(res.data.msg)
+              this.$message({
+                message: '查无数据',
+                type: 'error'
+              })
+            }
+          })
+          .catch(err=>{
+            console.log(err)
+          })
+    },
+    getDefenseInfoByStuId(){
+      this.service.get("/defense/getByStuId/"+this.stuInfo.id)
+          .then(res=>{
+            if(res.data.code === 200){
+              this.$message({
+                message: '答辩信息加载成功',
+                type: 'success'
+              })
+              this.defense = res.data.data
+            }else{
+              console.log(res.data.msg)
+              this.$message({
+                message: '查无数据',
+                type: 'error'
+              })
+            }
+          })
+          .catch(err=>{
+            console.log(err)
+          })
+    },
+    getScoreInfoByStuId(){
+      this.service.get("/score/getByStuId/"+this.stuInfo.id)
+          .then(res=>{
+            if(res.data.code === 200){
+              this.$message({
+                message: '成绩信息加载成功',
+                type: 'success'
+              })
+              this.score = res.data.data
+            }else{
+              console.log(res.data.msg)
+              this.$message({
+                message: '查无数据',
+                type: 'error'
+              })
+            }
+          })
+          .catch(err=>{
+            console.log(err)
+          })
+    },
     //分页
     handleSizeChange(val) {
       //更改每页条数的时候返回第一页
