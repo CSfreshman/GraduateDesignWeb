@@ -1,5 +1,5 @@
 <template>
-  <div class="studentList">
+  <div class="studentList" v-if="role > 1">
     <!--    查询 以及 新增的表单-->
     <el-form :inline="true" :model="formInLine" class="demo-form-inline" size="small">
       <el-form-item>
@@ -69,6 +69,11 @@
 
   </div>
 
+  <div v-else-if="role <= 1">
+    <span>您没有权限访问此页面</span>
+  </div>
+
+
 </template>
 
 <script>
@@ -77,6 +82,7 @@ export default {
   data () {
     return {
       isAdd: true,
+      role: '',
       //表格数据
       tableData: [],
       //查询数据
@@ -103,7 +109,11 @@ export default {
   },
 
   created() {
-    this.getData();
+    this.role = localStorage.getItem("role")
+    if(this.role > 1){
+      this.getData();
+    }
+
   },
 
   methods: {

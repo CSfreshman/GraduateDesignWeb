@@ -14,7 +14,7 @@
           </el-breadcrumb>
         </el-card>
 
-        <div class="cont">
+        <div class="cont" v-if="role > 1">
           <div class="options">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="findResult">查询</el-button>
             <el-button type="primary" icon="el-icon-edit" size="mini" @click="update">更新</el-button>
@@ -103,7 +103,9 @@
             </el-pagination>
           </div>
         </div>
-
+        <div v-else-if="role <= 1">
+          <span>您没有权限访问此页面</span>
+        </div>
 
       </el-main>
     </el-container>
@@ -123,6 +125,7 @@ export default {
   data() {
     return {
       isUpload: false,
+      role: '',
       showResultId: false,
       isAdd: true,
       isFind: true,
@@ -158,6 +161,7 @@ export default {
     }
   },
   created() {
+    this.role = localStorage.getItem('role')
     this.getData()
   },
   methods: {

@@ -5,8 +5,14 @@ const service = axios.create({
     baseURL: 'http://localhost:8081',
     timeout: 3000,       //指定请求超时时间  毫秒
     headers: {
-        'Content-type': 'application/json;charset=utf-8'
-    }
+        'Content-type': 'application/json;charset=utf-8',
+        'Access-Control-Allow-Credentials': true,
+        'Access-Control-Allow-Headers': 'authorization',
+        'access-control-request-headers': 'authorization',
+        'authorization': localStorage.getItem("role"),
+        'authorization1111': '111111'
+    },
+    withCredentials: true
 
 })
 

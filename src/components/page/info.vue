@@ -25,6 +25,17 @@
               <el-descriptions-item label="选题类型">{{stuInfo.topicTypeDesc}}</el-descriptions-item>
               <el-descriptions-item label="选题进度">{{stuInfo.progressDesc}}</el-descriptions-item>
               <el-descriptions-item label="指导老师名称">{{stuInfo.teacherName}}</el-descriptions-item>
+              <el-descriptions-item v-show="false"></el-descriptions-item>
+              <el-descriptions-item label="中期检查地点">{{stuInfo.midCheckLocation}}</el-descriptions-item>
+              <el-descriptions-item label="中期检查日期">{{stuInfo.midCheckDate}}</el-descriptions-item>
+              <el-descriptions-item label="中期检查意见">{{stuInfo.midCheckOpinion}}</el-descriptions-item>
+              <el-descriptions-item label="答辩地点">{{stuInfo.defenseLocation}}</el-descriptions-item>
+              <el-descriptions-item label="答辩日期">{{stuInfo.defenseDate}}</el-descriptions-item>
+              <el-descriptions-item label="答辩结果">{{stuInfo.defenseRecord}}</el-descriptions-item>
+              <el-descriptions-item label="指导老师成绩">{{stuInfo.advisorScore}}</el-descriptions-item>
+              <el-descriptions-item label="评阅教师成绩">{{stuInfo.reviewerScore}}</el-descriptions-item>
+              <el-descriptions-item label="答辩小组成绩">{{stuInfo.committeeScore}}</el-descriptions-item>
+              <el-descriptions-item label="最终成绩">{{stuInfo.finalScore}}</el-descriptions-item>
             </el-descriptions>
           </el-card>
 

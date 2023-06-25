@@ -118,6 +118,7 @@ export default {
   data () {
     return {
       isAdd: true,
+      role: '',
       stuNo: '',
       //表格数据
       tableData: [],
@@ -163,6 +164,7 @@ export default {
   },
 
   created() {
+    this.role = localStorage.getItem('role');
     this.getData();
   },
 
@@ -211,14 +213,32 @@ export default {
 
     //编辑学生信息
     edit(row){
+      if(this.role <= 1){
+        this.$message({
+          message: '您没有权限',
+          type: 'error',
+          duration: 1000
+        });
+        return
+      }
       this.topic = row
       this.isAdd=false
       console.log(this.isAdd)
       this.dialogFormVisible=true;
 
+
+
     },
     //删除学生信息
     del(row){
+      if(this.role <= 1){
+        this.$message({
+          message: '您没有权限',
+          type: 'error',
+          duration: 1000
+        });
+        return
+      }
       this.$confirm('此操作将删除学生信息以及对应的成绩信息, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -272,6 +292,14 @@ export default {
     },
     //增加学生信息
     addStu(){
+      if(this.role <= 1){
+        this.$message({
+          message: '您没有权限',
+          type: 'error',
+          duration: 1000
+        });
+        return
+      }
       this.student = {}
       this.isAdd=true
       this.dialogFormVisible=true;
