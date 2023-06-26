@@ -37,32 +37,11 @@
             </el-upload>
           </el-dialog>
           <!--    嵌套表单的对话框-->
-          <el-dialog :title="isAdd ? '新增毕业设计成绩信息' : isFind ? '查询成绩信息' : '编辑成绩信息' " :visible.sync="dialogFormVisible">
-            <span class = "span" v-if="!(isAdd || isFind)">该操作只需要修改成绩</span>
-            <el-form :model="formResult">
+          <el-dialog :title="'查询成绩信息'" :visible.sync="dialogFormVisible">
+            <el-form>
               <!--        学号-->
               <el-form-item label="学号" :label-width="formLabelWidth">
-                <el-input v-model="formResult.sid" autocomplete="off"></el-input>
-              </el-form-item>
-              <!--        姓名-->
-              <el-form-item label="姓名" :label-width="formLabelWidth">
-                <el-input v-model="formResult.name" autocomplete="off"></el-input>
-              </el-form-item>
-              <!-- 指导教师成绩 -->
-              <el-form-item label="指导教师成绩" :label-width="formLabelWidth" v-if="!isFind">
-                <el-input v-model="formResult.mentorScore" autocomplete="off"></el-input>
-              </el-form-item>
-              <!-- 评阅教师成绩 -->
-              <el-form-item label="评阅教师成绩" :label-width="formLabelWidth" v-if="!isFind">
-                <el-input v-model="formResult.reviewerScore" autocomplete="off"></el-input>
-              </el-form-item>
-              <!-- 答辩小组成绩 -->
-              <el-form-item label="答辩小组成绩" :label-width="formLabelWidth" v-if="!isFind">
-                <el-input v-model="formResult.defenseScore" autocomplete="off"></el-input>
-              </el-form-item>
-              <!-- 最终成绩 -->
-              <el-form-item label="最终成绩" :label-width="formLabelWidth" v-if="!isFind">
-                <el-input v-model="formResult.finalScore" autocomplete="off"></el-input>
+                <el-input v-model="stuNo" autocomplete="off"></el-input>
               </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -124,6 +103,7 @@ export default {
   data() {
     return {
       isUpload: false,
+      stuNo: '',
       role: '',
       showResultId: false,
       isAdd: true,
@@ -208,71 +188,27 @@ export default {
     confirm(){
       console.log(this.formResult)
       this.dialogFormVisible = false
-      if(this.isAdd){
-        //新增
-        this.service.post('/score',this.formResult)
-            .then(res=>{
-              console.log(res)
-              if(res.data.code == 200){
-                this.$message({
-                  message: '新增成功',
-                  type: 'success'
-                })
-                this.getData()
-              }else{
-                this.$message({
-                  message: res.data.msg,
-                  type: 'error'
-                })
-              }
-            })
-            .catch(err=>{
-              console.log(err)
-            })
-      }else if(this.isFind){
-        this.formResult.id = '-1'
-        this.formResult.score = '-1'
-        //查询
-        this.service.post('/score/getScore',this.formResult)
-            .then(res=>{
-              console.log(res)
-              if(res.data.code == 200){
-                this.$message({
-                  message: '查询成功',
-                  type: 'success'
-                })
-                this.tableData = [...res.data.data]
-                this.total = this.tableData.length
-              }else{
-                this.$message({
-                  message: res.data.msg,
-                  type: 'warning'
-                })
-              }
-            })
-            .catch(err=>{
-              console.log("这里出错")
-              console.log(err)
-            })
-      }else{
-        //编辑
-        this.service.put('/score',this.formResult)
-            .then(res=>{
-              console.log(res)
-              if(res.data.code == 200){
-                this.$message({
-                  message: '修改成功',
-                  type: 'success'
-                })
-                this.getData()
-              }else{
 
-              }
-            })
-            .catch(err=>{
-              console.log(err)
-            })
-      }
+      this.service.get('/score/getByStuNo/'+this.stuNo)
+          .then(res=>{
+            console.log(res)
+            if(res.data.code == 200){
+              this.$message({
+                message: '新增成功',
+                type: 'success'
+              })
+              this.tableData = []
+              this.tableData.push(res.data.data)
+            }else{
+              this.$message({
+                message: res.data.msg,
+                type: 'error'
+              })
+            }
+          })
+          .catch(err=>{
+            console.log(err)
+          })
     },
     //编辑信息
     editResult(row){

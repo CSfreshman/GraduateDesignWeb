@@ -200,9 +200,10 @@ export default {
           .then(res=>{
             console.log("执行findStu")
             console.log(res)
-            if(res.data.code === 200){
+            if(res.data.code == 200){
               console.log("请求成功")
-              this.tableData = [...res.data.data]
+              this.tableData = []
+              this.tableData.push(res.data.data)
               this.total = this.tableData.length
             }
           })

@@ -1,20 +1,20 @@
 <template>
   <div class="studentList">
 <!--    &lt;!&ndash;    查询 以及 新增的表单&ndash;&gt;-->
-    <el-form :inline="true" :model="formInLine" class="demo-form-inline" size="small">
-      <el-form-item>
-        <el-input v-model="formInLine.sid" placeholder="请输入老师姓名"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="findStu">查询</el-button>
-      </el-form-item>
+<!--    <el-form :inline="true" :model="formInLine" class="demo-form-inline" size="small">-->
+<!--      <el-form-item>-->
+<!--        <el-input v-model="formInLine.sid" placeholder="请输入老师姓名"></el-input>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item>-->
+<!--        <el-button type="primary" @click="findStu">查询</el-button>-->
+<!--      </el-form-item>-->
 <!--      <el-form-item>-->
 <!--        <el-button type="primary" @click="addStu">新增</el-button>-->
 <!--      </el-form-item>-->
-      <el-form-item>
-        <el-button type="primary" @click="flush">刷新</el-button>
-      </el-form-item>
-    </el-form>
+<!--      <el-form-item>-->
+<!--        <el-button type="primary" @click="flush">刷新</el-button>-->
+<!--      </el-form-item>-->
+<!--    </el-form>-->
 <!--    &lt;!&ndash;    嵌套表单的对话框&ndash;&gt;-->
 <!--    <el-dialog :title="isAdd ? '新增学生信息' : '修改学生信息' " :visible.sync="dialogFormVisible">-->
 <!--      <el-form :model="student">-->

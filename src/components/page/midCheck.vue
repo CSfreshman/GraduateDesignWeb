@@ -17,29 +17,19 @@
         <div class="cont" v-if="role > 1">
           <div class="options">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="findResult">查询</el-button>
-            <el-button type="primary" icon="el-icon-edit" size="mini" @click="update">更新</el-button>
-            <el-button type="primary" size="mini" @click="upload">上传<i class="el-icon-upload el-icon--right"></i>
-            </el-button>
+<!--            <el-button type="primary" icon="el-icon-edit" size="mini" @click="update">更新</el-button>-->
+<!--            <el-button type="primary" size="mini" @click="upload">上传<i class="el-icon-upload el-icon&#45;&#45;right"></i></el-button>-->
             <el-button type="primary" icon="el-icon-thumb" size="mini" @click="flush">刷新</el-button>
           </div>
 
           <!--    嵌套表单的对话框-->
-          <el-dialog :title="isFind ? '查询中期检查情况' : '更新中期检查情况' " :visible.sync="dialogFormVisible">
-            <span class="span" v-if="!(isAdd || isFind)">该操作只需要修改成绩</span>
-            <el-form :model="formResult">
-              <el-form-item label="选题编号" :label-width="formLabelWidth">
-                <el-input v-model="formResult.selectTopicId" autocomplete="off"></el-input>
-              </el-form-item>
-              <el-form-item label="中期检查日期" :label-width="formLabelWidth">
-                <el-date-picker v-model="formResult.date" type="datetime" placeholder="选择日期时间"></el-date-picker>
-              </el-form-item>
-              <el-form-item label="中期检查意见" :label-width="formLabelWidth">
-                <el-input v-model="formResult.opinion" autocomplete="off"></el-input>
-              </el-form-item>
-              <el-form-item label="中期检查地点" :label-width="formLabelWidth">
-                <el-input v-model="formResult.location" autocomplete="off"></el-input>
+          <el-dialog :title="'查询中期检查情况'" :visible.sync="dialogFormVisible">
+            <el-form>
+              <el-form-item label="学号" :label-width="formLabelWidth">
+                <el-input v-model="stuNo" autocomplete="off"></el-input>
               </el-form-item>
             </el-form>
+
             <div slot="footer" class="dialog-footer">
               <el-button @click="dialogFormVisible = false">取 消</el-button>
               <el-button type="primary" @click="confirm">确 定</el-button>
@@ -103,6 +93,7 @@ export default {
   data() {
     return {
       isUpload: false,
+      stuNo: '',
       role: '',
       showResultId: false,
       isAdd: true,
@@ -181,47 +172,28 @@ export default {
     },
     //对话框的确认按钮
     confirm() {
-      this.dialogFormVisible = false
-      if (this.isFind) {
-        this.service.post('/midterm_check/find', this.formMidtermCheck)
-            .then(res => {
-              if (res.data.code == 200) {
-                this.$message({
-                  message: '查询成功',
-                  type: 'success'
-                })
-                this.tableData = [...res.data.data]
-                this.total = this.tableData.length
-              } else {
-                this.$message({
-                  message: res.data.msg,
-                  type: 'warning'
-                })
-              }
-            })
-            .catch(err => {
-              console.log(err)
-            })
-      } else {
-        this.service.put('/midterm_check', this.formMidtermCheck)
-            .then(res => {
-              if (res.data.code == 200) {
-                this.$message({
-                  message: '更新成功',
-                  type: 'success'
-                })
-                this.getData()
-              } else {
-                this.$message({
-                  message: res.data.msg,
-                  type: 'error'
-                })
-              }
-            })
-            .catch(err => {
-              console.log(err)
-            })
-      }
+      this.dialogFormVisible = false;
+      console.log("okokokok");
+      this.service.get('/midtermCheck/getByStuNo/'+this.stuNo)
+          .then(res => {
+            if (res.data.code == 200) {
+              this.$message({
+                message: '查询成功',
+                type: 'success'
+              })
+              this.tableData = []
+              this.tableData.push(res.data.data)
+              this.total = this.tableData.length
+            } else {
+              this.$message({
+                message: res.data.msg,
+                type: 'warning'
+              })
+            }
+          })
+          .catch(err => {
+            console.log(err)
+          })
     },
     //编辑信息
     editResult(row) {
